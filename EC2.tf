@@ -303,6 +303,11 @@ resource "aws_security_group" "loadBalancer-sg" {
   description = "Load balancer Security Group"
 }
 
+output "loadbalancerid" {
+  value = aws_security_group.loadBalancer-sg.id
+}
+
+
 #----------------------------Creating Security group for RDS AND EFS -----------------------------------
 resource "aws_security_group" "RDSEFS-sg" {
   vpc_id     = aws_vpc.myvpc.id
@@ -310,6 +315,9 @@ resource "aws_security_group" "RDSEFS-sg" {
   description = "RDS and EFS Security Group"
 }
 
+output "RDSEFSid" {
+  value = aws_security_group.RDSEFS-sg.id
+}
 
 #------------------------Adding Rules to Load Balancer Security Group -------------------------------------
 resource "aws_security_group_rule" "httpslb" {
@@ -358,6 +366,9 @@ resource "aws_security_group" "clixxapp-sg" {
   description = "Clixx Instance security group"
 }
 
+output "CLIXXSGid" {
+  value = aws_security_group.clixxapp-sg.id
+}
 
 #-----------------------------Adding ZRules to the Clixx Server security group------------------------------------
 resource "aws_security_group_rule" "sshbastion" {
