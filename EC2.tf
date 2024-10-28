@@ -83,6 +83,7 @@ resource "aws_subnet" "privatesubnetrds2" {
   }
 }
 
+
 #------------------------------Creating private subnet for oracle database 1 -------------------------------
 resource "aws_subnet" "privatesubnetoracleDB1" {
   vpc_id     = aws_vpc.myvpc.id
@@ -615,6 +616,25 @@ resource "aws_lb_listener" "http" {
   }
 }
 
+#------------------------------Creating EFS------------------------------------------------------------------
+resource "aws_efs_file_system" "my_efs" {
+  creation_token = "my-efs-token"
+
+  tags = {
+    Name = "MyEFS"
+    Environment = "Development"
+  }
+}
+
+
+#---------------------------Creating Mount Target------------------------------------------------------------
+
+resource "aws_efs_mount_target" "my_efs_mount_target" {
+  count            = 2
+  file_system_id   = aws_efs_file_system.my_efs.id
+  subnet_id        = [aws_subnet.privatesubnetrds1.id,aws_subnet.privatesubnetrds2.id][count.index]
+  security_groups  = [aws_security_group.RDSEFS-sg.id]
+}
 
 
 #--------------------Declaring variables to be used in the Bootstrap ----------------------------------------------
