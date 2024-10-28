@@ -637,6 +637,38 @@ resource "aws_efs_mount_target" "my_efs_mount_target" {
 }
 
 
+
+#----------------------------Create RDS Subnet group-----------------------------------------------------------
+resource "aws_db_subnet_group" "groupdb" {
+  name       = "my-db-subnet-group"
+  subnet_ids = [aws_subnet.privatesubnetrds1.id,aws_subnet.privatesubnetrds2.id]
+
+  tags = {
+    Name = "My_DB_Subnet_Group"
+  }
+}
+
+
+#------------------------Restoring RDS Database from snapshot------------------------------------------------------
+
+resource "aws_db_instance" "restored_db" {
+  identifier          = "wordpressdbclixx-ecs"
+  snapshot_identifier = "arn:aws:rds:us-east-1:577701061234:snapshot:wordpressdbclixx-ecs-snapshot"  
+  instance_class      = "db.m6gd.large"        
+  allocated_storage    = 20                     
+  engine             = "mysql"                
+  username           = "wordpressuser"
+  password           = "W3lcome123"         
+  db_subnet_group_name = aws_db_subnet_group.groupdb.name  
+  vpc_security_group_ids = [aws_security_group.RDSEFS-sg.id] 
+  skip_final_snapshot     = true
+  publicly_accessible  = true
+  
+  tags = {
+    Name = "wordpressdb"
+  }
+}
+
 #--------------------Declaring variables to be used in the Bootstrap ----------------------------------------------
 data "template_file" "bootstrap" {
     template = file(format("%s/scripts/bootstrap.tpl", path.module))
@@ -687,4 +719,32 @@ resource "aws_launch_template" "my_launch_template" {
 
 output "launch_template_id" {
   value = aws_launch_template.my_launch_template.id
+}
+
+
+#-------------------------Creating Autosacling Group-----------------------------------------------
+resource "aws_autoscaling_group" "my_asg" {
+  depends_on = [ aws_db_instance.restored_db ]
+  launch_template {
+    id      = aws_launch_template.my_launch_template.id
+    version = "$Latest"  
+  }
+
+  min_size     = 1
+  max_size     = 3
+  desired_capacity = 1
+  vpc_zone_identifier = [aws_subnet.privatesubnetclixx1.id]
+
+  tag {
+    key                 = "Name"
+    value               = "MyCliXXAutoScaling"
+    propagate_at_launch = true
+  }
+
+  target_group_arns = [aws_lb_target_group.instance_target_group.arn]
+}
+
+
+output "autoscaling_group_id" {
+  value = aws_autoscaling_group.my_asg.id
 }
