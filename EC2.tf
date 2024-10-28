@@ -761,14 +761,31 @@ output "hostedzone" {
 
 }
 
-resource "aws_route53_record" "my_record" {
-  allow_overwrite = true
+# resource "aws_route53_record" "my_record" {
+#   allow_overwrite = true
+#   zone_id = data.aws_route53_zone.selected.zone_id
+#   name    = "terraform.clixx-azeez.com"
+#   type    = "CNAME"
+#   ttl     = 1500
+#   records = [aws_lb.test.dns_name]
+# }
+
+
+resource "aws_route53_record" "geolocation_record_na" {
   zone_id = data.aws_route53_zone.selected.zone_id
-  name    = "terraform.clixx-azeez.com"
-  type    = "CNAME"
-  ttl     = 1500
-  records = [aws_lb.test.dns_name]
+  name     = "terraform.clixx-azeez.com"                    
+  type     = "A"  
+  alias {
+    name                   = aws_lb.test.dns_name  
+    zone_id                = data.aws_route53_zone.selected.zone_id   
+    evaluate_target_health = false
+  }
+
+  geolocation {
+    continent = "NA"                       
+  }
 }
+
 
 
 
