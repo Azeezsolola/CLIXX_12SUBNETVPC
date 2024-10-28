@@ -503,6 +503,17 @@ resource "aws_lb" "test" {
   }
 }
 
+#------------------Calling SSM to store load balancer ARN in ssm parameter store --------------------------
+resource "aws_ssm_parameter" "loadbalancerssm" {
+  name        = "/myapp/config/loadbalancerarn"  
+  description = "Load Balancer Arn"
+  type        = "String"    
+  value       = aws_lb.test.arn  
+
+  tags = {
+    Environment = "Dev" 
+  }
+}
 
 #------------------------------Pulling certificate to attach to load Balancer lsitnenr ----------------------
 data "aws_acm_certificate" "amazon_issued" {
@@ -543,6 +554,17 @@ resource "aws_efs_file_system" "my_efs" {
   }
 }
 
+#---------------------------Calling ssm to store efs arn --------------------------------------------------
+resource "aws_ssm_parameter" "efarnssm" {
+  name        = "/myapp/config/efsarn"  
+  description = "EFS arn"
+  type        = "String"    
+  value       = aws_efs_file_system.my_efs.arn  
+
+  tags = {
+    Environment = "Dev" 
+  }
+}
 
 #---------------------------Creating Mount Target------------------------------------------------------------
 
@@ -585,6 +607,9 @@ resource "aws_db_instance" "restored_db" {
     Name = "wordpressdb"
   }
 }
+
+#--------------------CAlling ssm to store RDS database ----------------------------------------------------------
+
 
 #--------------------Declaring variables to be used in the Bootstrap ----------------------------------------------
 data "template_file" "bootstrap" {
