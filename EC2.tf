@@ -748,3 +748,24 @@ resource "aws_autoscaling_group" "my_asg" {
 output "autoscaling_group_id" {
   value = aws_autoscaling_group.my_asg.id
 }
+
+
+
+data "aws_route53_zone" "selected" {
+  name         = "clixx-azeez.com"
+  
+}
+
+output "hostedzone" {
+  value = data.aws_route53_zone.selected.zone_id
+
+}
+
+resource "aws_route53_record" "my_record" {
+  allow_overwrite = true
+  zone_id = data.aws_route53_zone.selected.zone_id
+  name    = "terraform.clixx-azeez.com"
+  type    = "CNAME"
+  ttl     = 1500
+  records = [aws_lb.test.dns_name]
+}

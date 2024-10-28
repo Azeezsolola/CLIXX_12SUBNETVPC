@@ -15,14 +15,14 @@ variable "PATH_TO_PUBLIC_KEY" {
   default = "clixx_key.pub"
 }
 
-variable "AMIS" {
-  type = map(string)
-  default = {
-    us-east-1 = "ami-08f3d892de259504d"
-    us-west-2 = "ami-06b94666"
-    eu-west-1 = "ami-844e0bf7"
-  }
-}
+# variable "AMIS" {
+#   type = map(string)
+#   default = {
+#     us-east-1 = "ami-08f3d892de259504d"
+#     us-west-2 = "ami-06b94666"
+#     eu-west-1 = "ami-844e0bf7"
+#   }
+# }
 
 #  variable "RDS_PASSWORD" {
 #  }
@@ -43,12 +43,12 @@ variable "instance_type"{
 }
 
 
-variable "vpc_id"{
-    default="vpc-0c6460b8c3c8fe62f"
-}
+# variable "vpc_id"{
+#     default="vpc-0c6460b8c3c8fe62f"
+# }
 
 variable "ami" {
-  default = "ami-05a1546b853da5d74"
+  default = "ami-056d6c51d3b7d21af"
 }
 
 
