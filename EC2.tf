@@ -393,6 +393,7 @@ resource "aws_security_group_rule" "sshbastion2" {
 
 
 resource "aws_security_group_rule" "mysql" {
+  depends_on = [ aws_security_group.clixxapp_sg ]
   security_group_id        = aws_security_group.clixxapp_sg.id
   type                     = "ingress"
   protocol                 = "tcp"
