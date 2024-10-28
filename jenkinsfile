@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+
+    environment {
+        PATH = "${PATH}:${getTerraformPath()}"
+       
+    }
+    stages{
+
+        stage('Init and validate') {
+              steps {
+                sh '''
+                    terraform init 
+                    terraform validate 
+                    '''
+           }
+        }
+        stage('Terraform Plan'){
+              steps {
+                sh '''
+                    terraform plan -out=tfplan -input=false
+                   '''
+              }
+        }
+        stage('Terraform apply Question'){
+             steps {
+                 //slackSend (color: '#FFFF00', message: "STARTING PACKER IMAGE BUILD: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+                 script{
+                def userInput = input(id: 'confirm', message: 'Would you like to proceed with terraform apply step?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Proceed with terraform apply', name: 'confirm'] ])
+
+                }
+         }
+         }
+         stage('Terraform apply'){
+              steps {
+                sh '''
+                if [[ $ACTION == 'apply' ]]
+                then
+                    terraform $ACTION -auto-approve
+                else
+                    terraform $ACTION -auto-approve
+                fi
+                '''
+              }
+        }       
+
+    }
+}
+
+ def getTerraformPath(){
+        def tfHome= tool name: 'terraform-14', type: 'terraform'
+        return tfHome
+    }
+
+
+
+

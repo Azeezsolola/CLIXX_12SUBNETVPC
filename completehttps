@@ -1,0 +1,367 @@
+resource "aws_key_pair" "Stack_KP" {
+  key_name   = "stackkp"
+  public_key = file(var.PATH_TO_PUBLIC_KEY)
+}
+
+#Create Security Group
+resource "aws_security_group" "clixx-sg" {
+  vpc_id     = var.vpc_id
+  name        = "clixx-WebDMZ"
+  description = "clixx Security Group For clixx Instance"
+}
+
+resource "aws_security_group_rule" "ssh" {
+  security_group_id = aws_security_group.clixx-sg.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 22
+  to_port           = 22
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "msql" {
+  security_group_id = aws_security_group.clixx-sg.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 3306
+  to_port           = 3306
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+
+resource "aws_security_group_rule" "http" {
+  security_group_id = aws_security_group.clixx-sg.id
+  type              = "egress"
+  protocol          = "tcp"
+  from_port         = 80
+  to_port           = 80
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+resource "aws_security_group_rule" "https1" {
+  security_group_id = aws_security_group.clixx-sg.id
+  type              = "egress"
+  protocol          = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+
+
+resource "aws_security_group_rule" "https" {
+  security_group_id = aws_security_group.clixx-sg.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+resource "aws_security_group_rule" "http2" {
+  security_group_id = aws_security_group.clixx-sg.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 80
+  to_port           = 80
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+resource "aws_security_group_rule" "mysql2" {
+  security_group_id = aws_security_group.clixx-sg.id
+  type              = "egress"
+  protocol          = "tcp"
+  from_port         = 3306
+  to_port           = 3306
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+resource "aws_security_group_rule" "NFS" {
+  security_group_id = aws_security_group.clixx-sg.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 2049
+  to_port           = 2049
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+resource "aws_security_group_rule" "NFS2" {
+  security_group_id = aws_security_group.clixx-sg.id
+  type              = "egress"
+  protocol          = "tcp"
+  from_port         = 2049
+  to_port           = 2049
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+# data "template_file" "bootstrap" {
+#     template = file(format("%s/scripts/bootstrap.tpl", path.module))
+#     vars = {
+#     lb_dns = aws_lb.test.dns_name  # Reference the load balancer's DNS name
+#   }
+  
+   
+# }
+
+
+
+
+# Create the DB Subnet Group using the retrieved subnet IDs
+resource "aws_db_subnet_group" "groupdb" {
+  name       = "my-db-subnet-group"
+  subnet_ids = var.subnet
+
+  tags = {
+    Name = "My_DB_Subnet_Group"
+  }
+}
+
+resource "aws_db_instance" "restored_db" {
+  identifier          = "wordpressdbclixx-ecs"
+  snapshot_identifier = "arn:aws:rds:us-east-1:577701061234:snapshot:wordpressdbclixx-ecs-snapshot"  
+  instance_class      = "db.m6gd.large"        
+  allocated_storage    = 20                     
+  engine             = "mysql"                
+  username           = "wordpressuser"
+  password           = "W3lcome123"         
+  db_subnet_group_name = aws_db_subnet_group.groupdb.name  
+  vpc_security_group_ids = [aws_security_group.clixx-sg.id] 
+  skip_final_snapshot     = true
+  publicly_accessible  = true
+  
+  tags = {
+    Name = "wordpressdb"
+  }
+}
+
+
+
+
+
+
+# resource "aws_instance" "DDog_Server" {
+#   count                       = length(var.subnets)
+#   depends_on                  = [aws_db_instance.restored_db]
+#   ami                         = var.ami
+#   instance_type               = var.instance_type
+#   vpc_security_group_ids      = [aws_security_group.clixx-sg.id]
+#   subnet_id                   = var.subnets[count.index]
+#   user_data                   = data.template_file.bootstrap.rendered
+#   key_name                    = aws_key_pair.Stack_KP.key_name
+#   #iam_instance_profile        = data.aws_iam_instance_profile.ssm-instance-prof.name
+#   root_block_device {
+#     volume_type               = "gp2"
+#     volume_size               = 30
+#     delete_on_termination     = true
+#     encrypted= "false"
+#   }
+#   tags                        = {
+#   Name                        = "clixx-SB-Server_${count.index}"
+# }
+# }
+
+
+
+
+# Create EFS File System
+resource "aws_efs_file_system" "my_efs" {
+  creation_token = "my-efs-token"
+
+  tags = {
+    Name = "MyEFS"
+    Environment = "Development"
+  }
+}
+
+# Create EFS Mount Targets
+resource "aws_efs_mount_target" "my_efs_mount_target" {
+  count            = length(var.subnet)
+  file_system_id   = aws_efs_file_system.my_efs.id
+  subnet_id        = var.subnet[count.index]
+  security_groups  = [aws_security_group.clixx-sg.id]
+}
+
+
+
+
+
+
+resource "aws_lb" "test" {
+  name               = "autoscalinglb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.clixx-sg.id]
+  subnets            = var.subnet
+  enable_deletion_protection = false
+  tags = {
+    Environment = "Development"
+  }
+}
+
+
+
+# Target Group
+resource "aws_lb_target_group" "instance_target_group" {
+  name     = "autoscalingtg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id 
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 5
+    timeout             = 120
+    interval            = 300
+    path                = "/" 
+    protocol            = "HTTP"
+  }
+
+  tags = {
+    Environment = "Development"
+  }
+}
+
+
+data "aws_acm_certificate" "amazon_issued" {
+  domain      = "*.clixx-azeez.com"
+  types       = ["AMAZON_ISSUED"]
+  most_recent = true
+}
+
+
+output "mycerts" {
+  value = data.aws_acm_certificate.amazon_issued.arn
+}
+
+
+# Listener for the Load Balancer
+resource "aws_lb_listener" "http" {
+  
+  load_balancer_arn = aws_lb.test.arn
+  port              = 443
+  protocol          = "HTTPS"
+  certificate_arn = data.aws_acm_certificate.amazon_issued.arn
+
+  default_action {
+    type = "forward"
+
+    
+      target_group_arn = aws_lb_target_group.instance_target_group.arn
+    
+  }
+}
+
+data "template_file" "bootstrap" {
+    template = file(format("%s/scripts/bootstrap.tpl", path.module))
+    vars = {
+    lb_dns = "https://dev2.clixx-azeez.com" ,
+    FILE = aws_efs_file_system.my_efs.id 
+  }
+  
+   
+}
+
+
+
+
+
+# Create a launch template
+resource "aws_launch_template" "my_launch_template" {
+  name          = "my-launch-template"
+  image_id      = var.ami
+  instance_type = var.instance_type
+
+  key_name = aws_key_pair.Stack_KP.key_name
+  
+  user_data  = base64encode(data.template_file.bootstrap.rendered)
+
+
+  
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.clixx-sg.id]
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = "newinstance"
+    }
+  }
+}
+
+
+output "launch_template_id" {
+  value = aws_launch_template.my_launch_template.id
+}
+
+
+
+
+# Create an Auto Scaling group from the launch template
+resource "aws_autoscaling_group" "my_asg" {
+  depends_on = [ aws_db_instance.restored_db ]
+  launch_template {
+    id      = aws_launch_template.my_launch_template.id
+    version = "$Latest"  
+  }
+
+  min_size     = 1
+  max_size     = 3
+  desired_capacity = 1
+  vpc_zone_identifier = var.subnet 
+
+  tag {
+    key                 = "Name"
+    value               = "MyAutoScalingInstance"
+    propagate_at_launch = true
+  }
+
+  target_group_arns = [aws_lb_target_group.instance_target_group.arn]
+}
+
+
+output "autoscaling_group_id" {
+  value = aws_autoscaling_group.my_asg.id
+}
+
+
+# data "aws_acm_certificate" "amazon_issued" {
+#   domain      = "*.clixx-azeez.com"
+#   types       = ["AMAZON_ISSUED"]
+#   most_recent = true
+# }
+
+
+# output "mycerts" {
+#   value = data.aws_acm_certificate.amazon_issued.arn
+# }
+
+
+data "aws_route53_zone" "selected" {
+  name         = "clixx-azeez.com"
+  
+}
+
+output "hostedzone" {
+  value = data.aws_route53_zone.selected.zone_id
+
+}
+
+resource "aws_route53_record" "my_record" {
+  allow_overwrite = true
+  zone_id = data.aws_route53_zone.selected.zone_id
+  name    = "dev2.clixx-azeez.com"
+  type    = "CNAME"
+  ttl     = 1500
+  records = [aws_lb.test.dns_name]
+}
