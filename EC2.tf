@@ -673,7 +673,7 @@ resource "aws_db_instance" "restored_db" {
 data "template_file" "bootstrap" {
     template = file(format("%s/scripts/bootstrap.tpl", path.module))
     vars = {
-    lb_dns = "https://dev2.clixx-azeez.com" ,
+    lb_dns = "https://terraform.clixx-azeez.com" ,
     FILE = aws_efs_file_system.my_efs.id,
     MOUNT_POINT="/var/www/html",
     REGION = "us-east-1"
@@ -703,7 +703,7 @@ resource "aws_launch_template" "my_launch_template" {
 
   
   network_interfaces {
-    associate_public_ip_address = true
+    associate_public_ip_address = false
     security_groups             = [aws_security_group.clixxapp-sg.id]
   }
 
