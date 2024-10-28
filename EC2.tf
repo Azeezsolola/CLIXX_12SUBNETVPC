@@ -49,6 +49,7 @@ resource "aws_subnet" "publicsubnet1loadbalancer" {
 
 
 
+
 #-----------------------------Creating public subnet 2 for load Balancer ------------------------------------
 
 resource "aws_subnet" "publicsubnet2loadbalancer" {
@@ -294,3 +295,365 @@ resource "aws_route_table_association" "ass12" {
   route_table_id = aws_route_table.privroutetable.id
 }
 
+
+#--------------------------Creating security group for load Balancer -------------------------------------
+resource "aws_security_group" "loadBalancer-sg" {
+  vpc_id     = aws_vpc.myvpc.id
+  name        = "loadbalancer_Securitygroup"
+  description = "Load balancer Security Group"
+}
+
+#----------------------------Creating Security group for RDS AND EFS -----------------------------------
+resource "aws_security_group" "RDSEFS-sg" {
+  vpc_id     = aws_vpc.myvpc.id
+  name        = "RDS-AND-EFS_Securitygroup"
+  description = "RDS and EFS Security Group"
+}
+
+
+#------------------------Adding Rules to Load Balancer Security Group -------------------------------------
+resource "aws_security_group_rule" "httpslb" {
+  security_group_id = aws_security_group.loadBalancer-sg.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "httpslb2" {
+  security_group_id = aws_security_group.loadBalancer-sg.id
+  type              = "egress"
+  protocol          = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+resource "aws_security_group_rule" "ssh" {
+  security_group_id = aws_security_group.loadBalancer-sg.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 22
+  to_port           = 22
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+resource "aws_security_group_rule" "ssh2" {
+  security_group_id = aws_security_group.loadBalancer-sg.id
+  type              = "egress"
+  protocol          = "tcp"
+  from_port         = 22
+  to_port           = 22
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
+#-----------------------------------Creating Security Group for CliXX Application server-----------------------
+resource "aws_security_group" "clixxapp-sg" {
+  vpc_id     = aws_vpc.myvpc.id
+  name        = "clixxapplication_Securitygroup"
+  description = "Clixx Instance security group"
+}
+
+
+#-----------------------------Adding ZRules to the Clixx Server security group------------------------------------
+resource "aws_security_group_rule" "sshbastion" {
+  security_group_id = aws_security_group.clixxapp-sg.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 22
+  to_port           = 22
+  cidr_blocks       = ["10.0.2.0/23"]
+
+
+}
+
+resource "aws_security_group_rule" "sshbastion2" {
+  security_group_id = aws_security_group.clixxapp-sg.id
+  type              = "egress"
+  protocol          = "tcp"
+  from_port         = 22
+  to_port           = 22
+  cidr_blocks       = ["10.0.2.0/23"]
+}
+
+
+resource "aws_security_group_rule" "mysql" {
+  security_group_id        = aws_security_group.clixxapp_sg.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 3306
+  to_port                  = 3306
+  source_security_group_id = aws_security_group.loadBalancer_sg.id  
+}
+
+
+resource "aws_security_group_rule" "mysql2" {
+  security_group_id        = aws_security_group.clixxapp_sg.id
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 3306
+  to_port                  = 3306
+  source_security_group_id = aws_security_group.loadBalancer_sg.id  
+}
+
+
+resource "aws_security_group_rule" "NFS1" {
+  security_group_id        = aws_security_group.clixxapp_sg.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 2049
+  to_port                  = 2049
+  source_security_group_id = aws_security_group.loadBalancer_sg.id  
+}
+
+resource "aws_security_group_rule" "NFS2" {
+  security_group_id        = aws_security_group.clixxapp_sg.id
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 2049
+  to_port                  = 2049
+  source_security_group_id = aws_security_group.loadBalancer_sg.id  
+}
+
+
+resource "aws_security_group_rule" "NFS3" {
+  security_group_id        = aws_security_group.clixxapp_sg.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 2049
+  to_port                  = 2049
+  source_security_group_id = aws_security_group.RDSEFS.id 
+}
+
+resource "aws_security_group_rule" "NFS4" {
+  security_group_id        = aws_security_group.clixxapp_sg.id
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 2049
+  to_port                  = 2049
+  source_security_group_id = aws_security_group.RDSEFS.id 
+}
+
+
+resource "aws_security_group_rule" "http1" {
+  security_group_id        = aws_security_group.clixxapp_sg.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 80
+  to_port                  = 80
+  source_security_group_id = aws_security_group.loadBalancer_sg.id
+}
+
+
+resource "aws_security_group_rule" "http2" {
+  security_group_id        = aws_security_group.clixxapp_sg.id
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 80
+  to_port                  = 80
+  source_security_group_id = aws_security_group.loadBalancer_sg.id
+}
+
+
+resource "aws_security_group_rule" "msqlrds1" {
+  security_group_id        = aws_security_group.RDSEFS.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 3306
+  to_port                  = 3306
+  source_security_group_id = aws_security_group.clixxapp_sg.id
+}
+
+resource "aws_security_group_rule" "msqlrds2" {
+  security_group_id        = aws_security_group.RDSEFS.id
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 3306
+  to_port                  = 3306
+  source_security_group_id = aws_security_group.clixxapp_sg.id
+}
+
+resource "aws_security_group_rule" "NFS22" {
+  security_group_id        = aws_security_group.RDSEFS.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 2049
+  to_port                  = 2049
+  source_security_group_id = aws_security_group.clixxapp_sg.id
+}
+
+resource "aws_security_group_rule" "NFS23" {
+  security_group_id        = aws_security_group.RDSEFS.id
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 2049
+  to_port                  = 2049
+  source_security_group_id = aws_security_group.clixxapp_sg.id
+}
+
+
+resource "aws_security_group_rule" "msql44" {
+  security_group_id        = aws_security_group.RDSEFS.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 3306
+  to_port                  = 3306
+  source_security_group_id = aws_security_group.loadBalancer_sg.id
+}
+
+
+resource "aws_security_group_rule" "msql45" {
+  security_group_id        = aws_security_group.RDSEFS.id
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 3306
+  to_port                  = 3306
+  source_security_group_id = aws_security_group.loadBalancer_sg.id
+}
+
+resource "aws_security_group_rule" "NFS444" {
+  security_group_id        = aws_security_group.RDSEFS.id
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 2049
+  to_port                  = 2049
+  source_security_group_id = aws_security_group.loadBalancer_sg.id
+}
+
+resource "aws_security_group_rule" "NFS445" {
+  security_group_id        = aws_security_group.RDSEFS.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 2049
+  to_port                  = 2049
+  source_security_group_id = aws_security_group.loadBalancer_sg.id
+}
+
+
+
+
+
+#--------------------------Creating Target Group ------------------------------------------
+resource "aws_lb_target_group" "instance_target_group" {
+  name     = "newclixx-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.myvpc.id 
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 5
+    timeout             = 120
+    interval            = 300
+    path                = "/" 
+    protocol            = "HTTP"
+  }
+
+  tags = {
+    Environment = "Development"
+  }
+}
+
+
+
+
+#--------------------------Creating Load balancer -------------------------------------------------
+resource "aws_lb" "test" {
+  name               = "autoscalinglb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.loadBalancer_sg.id]
+  subnets            = [aws_subnet.publicsubnet1loadbalancer.id ,aws_subnet.publicsubnet2loadbalancer.id]
+  enable_deletion_protection = false
+  tags = {
+    Environment = "Development"
+  }
+}
+
+
+#------------------------------Pulling certificate to attach to load Balancer lsitnenr ----------------------
+data "aws_acm_certificate" "amazon_issued" {
+  domain      = "*.clixx-azeez.com"
+  types       = ["AMAZON_ISSUED"]
+  most_recent = true
+}
+
+output "mycerts" {
+  value = data.aws_acm_certificate.amazon_issued.arn
+}
+
+
+#------------------------------ attaching target group to load balancer and add certs to listner -------------------
+resource "aws_lb_listener" "http" {
+  
+  load_balancer_arn = aws_lb.test.arn
+  port              = 443
+  protocol          = "HTTPS"
+  certificate_arn = data.aws_acm_certificate.amazon_issued.arn
+
+  default_action {
+    type = "forward"
+
+    
+      target_group_arn = aws_lb_target_group.instance_target_group.arn
+    
+  }
+}
+
+
+
+#--------------------Declaring variables to be used in the Bootstrap ----------------------------------------------
+data "template_file" "bootstrap" {
+    template = file(format("%s/scripts/bootstrap.tpl", path.module))
+    vars = {
+    lb_dns = "https://dev2.clixx-azeez.com" ,
+    FILE = aws_efs_file_system.my_efs.id,
+    MOUNT_POINT="/var/www/html",
+    REGION = "us-east-1"
+    condition = "if (isset($$\\_SERVER['HTTP_X_FORWARDED_PROTO']) && $$\\_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {\\n $$\\_SERVER['HTTPS'] = 'on';\\n}"
+  }
+  
+   
+}
+
+#-------------------------------Creating Key Pair----------------------------------------------------------------------
+resource "aws_key_pair" "Stack_KP" {
+  key_name   = "stackkp"
+  public_key = file(var.PATH_TO_PUBLIC_KEY)
+}
+
+
+#----------------------Creating Launch Template --------------------------------------------------------------------------
+resource "aws_launch_template" "my_launch_template" {
+  name          = "my-launch-template"
+  image_id      = var.ami
+  instance_type = var.instance_type
+
+  key_name = aws_key_pair.Stack_KP.key_name
+  
+  user_data  = base64encode(data.template_file.bootstrap.rendered)
+
+
+  
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.clixxapp_sg.id]
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = "newinstance"
+    }
+  }
+}
+
+
+output "launch_template_id" {
+  value = aws_launch_template.my_launch_template.id
+}
