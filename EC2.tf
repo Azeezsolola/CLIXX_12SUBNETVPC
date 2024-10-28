@@ -330,14 +330,14 @@ resource "aws_security_group_rule" "httpslb" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group_rule" "httpslb2" {
-  security_group_id = aws_security_group.loadBalancer-sg.id
-  type              = "egress"
-  protocol          = "tcp"
-  from_port         = 443
-  to_port           = 443
-  cidr_blocks       = ["0.0.0.0/0"]
-}
+# resource "aws_security_group_rule" "httpslb2" {
+#   security_group_id = aws_security_group.loadBalancer-sg.id
+#   type              = "egress"
+#   protocol          = "tcp"
+#   from_port         = 443
+#   to_port           = 443
+#   cidr_blocks       = ["0.0.0.0/0"]
+# }
 
 
 resource "aws_security_group_rule" "ssh" {
@@ -350,14 +350,14 @@ resource "aws_security_group_rule" "ssh" {
 }
 
 
-resource "aws_security_group_rule" "ssh2" {
-  security_group_id = aws_security_group.loadBalancer-sg.id
-  type              = "egress"
-  protocol          = "tcp"
-  from_port         = 22
-  to_port           = 22
-  cidr_blocks       = ["0.0.0.0/0"]
-}
+# resource "aws_security_group_rule" "ssh2" {
+#   security_group_id = aws_security_group.loadBalancer-sg.id
+#   type              = "egress"
+#   protocol          = "tcp"
+#   from_port         = 22
+#   to_port           = 22
+#   cidr_blocks       = ["0.0.0.0/0"]
+# }
 
 
 #-----------------------------------Creating Security Group for CliXX Application server-----------------------
@@ -383,14 +383,14 @@ resource "aws_security_group_rule" "sshbastion" {
 
 }
 
-resource "aws_security_group_rule" "sshbastion2" {
-  security_group_id = aws_security_group.clixxapp-sg.id
-  type              = "egress"
-  protocol          = "tcp"
-  from_port         = 22
-  to_port           = 22
-  cidr_blocks       = ["10.0.2.0/23"]
-}
+# resource "aws_security_group_rule" "sshbastion2" {
+#   security_group_id = aws_security_group.clixxapp-sg.id
+#   type              = "egress"
+#   protocol          = "tcp"
+#   from_port         = 22
+#   to_port           = 22
+#   cidr_blocks       = ["10.0.2.0/23"]
+# }
 
 
 resource "aws_security_group_rule" "mysql" {
@@ -403,14 +403,14 @@ resource "aws_security_group_rule" "mysql" {
 }
 
 
-resource "aws_security_group_rule" "mysql2" {
-  security_group_id        = aws_security_group.clixxapp-sg.id
-  type                     = "egress"
-  protocol                 = "tcp"
-  from_port                = 3306
-  to_port                  = 3306
-  source_security_group_id = aws_security_group.loadBalancer-sg.id  
-}
+# resource "aws_security_group_rule" "mysql2" {
+#   security_group_id        = aws_security_group.clixxapp-sg.id
+#   type                     = "egress"
+#   protocol                 = "tcp"
+#   from_port                = 3306
+#   to_port                  = 3306
+#   source_security_group_id = aws_security_group.loadBalancer-sg.id  
+# }
 
 
 resource "aws_security_group_rule" "NFS1" {
@@ -422,14 +422,14 @@ resource "aws_security_group_rule" "NFS1" {
   source_security_group_id = aws_security_group.loadBalancer-sg.id  
 }
 
-resource "aws_security_group_rule" "NFS2" {
-  security_group_id        = aws_security_group.clixxapp-sg.id
-  type                     = "egress"
-  protocol                 = "tcp"
-  from_port                = 2049
-  to_port                  = 2049
-  source_security_group_id = aws_security_group.loadBalancer-sg.id  
-}
+# resource "aws_security_group_rule" "NFS2" {
+#   security_group_id        = aws_security_group.clixxapp-sg.id
+#   type                     = "egress"
+#   protocol                 = "tcp"
+#   from_port                = 2049
+#   to_port                  = 2049
+#   source_security_group_id = aws_security_group.loadBalancer-sg.id  
+# }
 
 
 resource "aws_security_group_rule" "NFS3" {
@@ -441,14 +441,14 @@ resource "aws_security_group_rule" "NFS3" {
   source_security_group_id = aws_security_group.RDSEFS-sg.id 
 }
 
-resource "aws_security_group_rule" "NFS4" {
-  security_group_id        = aws_security_group.clixxapp-sg.id
-  type                     = "egress"
-  protocol                 = "tcp"
-  from_port                = 2049
-  to_port                  = 2049
-  source_security_group_id = aws_security_group.RDSEFS-sg.id 
-}
+# resource "aws_security_group_rule" "NFS4" {
+#   security_group_id        = aws_security_group.clixxapp-sg.id
+#   type                     = "egress"
+#   protocol                 = "tcp"
+#   from_port                = 2049
+#   to_port                  = 2049
+#   source_security_group_id = aws_security_group.RDSEFS-sg.id 
+# }
 
 
 resource "aws_security_group_rule" "http1" {
@@ -461,14 +461,14 @@ resource "aws_security_group_rule" "http1" {
 }
 
 
-resource "aws_security_group_rule" "http2" {
-  security_group_id        = aws_security_group.clixxapp-sg.id
-  type                     = "egress"
-  protocol                 = "tcp"
-  from_port                = 80
-  to_port                  = 80
-  source_security_group_id = aws_security_group.loadBalancer-sg.id
-}
+# resource "aws_security_group_rule" "http2" {
+#   security_group_id        = aws_security_group.clixxapp-sg.id
+#   type                     = "egress"
+#   protocol                 = "tcp"
+#   from_port                = 80
+#   to_port                  = 80
+#   source_security_group_id = aws_security_group.loadBalancer-sg.id
+# }
 
 
 resource "aws_security_group_rule" "msqlrds1" {
@@ -480,14 +480,14 @@ resource "aws_security_group_rule" "msqlrds1" {
   source_security_group_id = aws_security_group.clixxapp-sg.id
 }
 
-resource "aws_security_group_rule" "msqlrds2" {
-  security_group_id        = aws_security_group.RDSEFS-sg.id
-  type                     = "egress"
-  protocol                 = "tcp"
-  from_port                = 3306
-  to_port                  = 3306
-  source_security_group_id = aws_security_group.clixxapp-sg.id
-}
+# resource "aws_security_group_rule" "msqlrds2" {
+#   security_group_id        = aws_security_group.RDSEFS-sg.id
+#   type                     = "egress"
+#   protocol                 = "tcp"
+#   from_port                = 3306
+#   to_port                  = 3306
+#   source_security_group_id = aws_security_group.clixxapp-sg.id
+# }
 
 resource "aws_security_group_rule" "NFS22" {
   security_group_id        = aws_security_group.RDSEFS-sg.id
@@ -498,14 +498,14 @@ resource "aws_security_group_rule" "NFS22" {
   source_security_group_id = aws_security_group.clixxapp-sg.id
 }
 
-resource "aws_security_group_rule" "NFS23" {
-  security_group_id        = aws_security_group.RDSEFS-sg.id
-  type                     = "egress"
-  protocol                 = "tcp"
-  from_port                = 2049
-  to_port                  = 2049
-  source_security_group_id = aws_security_group.clixxapp-sg.id
-}
+# resource "aws_security_group_rule" "NFS23" {
+#   security_group_id        = aws_security_group.RDSEFS-sg.id
+#   type                     = "egress"
+#   protocol                 = "tcp"
+#   from_port                = 2049
+#   to_port                  = 2049
+#   source_security_group_id = aws_security_group.clixxapp-sg.id
+# }
 
 
 resource "aws_security_group_rule" "msql44" {
@@ -518,23 +518,23 @@ resource "aws_security_group_rule" "msql44" {
 }
 
 
-resource "aws_security_group_rule" "msql45" {
-  security_group_id        = aws_security_group.RDSEFS-sg.id
-  type                     = "egress"
-  protocol                 = "tcp"
-  from_port                = 3306
-  to_port                  = 3306
-  source_security_group_id = aws_security_group.loadBalancer-sg.id
-}
+# resource "aws_security_group_rule" "msql45" {
+#   security_group_id        = aws_security_group.RDSEFS-sg.id
+#   type                     = "egress"
+#   protocol                 = "tcp"
+#   from_port                = 3306
+#   to_port                  = 3306
+#   source_security_group_id = aws_security_group.loadBalancer-sg.id
+# }
 
-resource "aws_security_group_rule" "NFS444" {
-  security_group_id        = aws_security_group.RDSEFS-sg.id
-  type                     = "egress"
-  protocol                 = "tcp"
-  from_port                = 2049
-  to_port                  = 2049
-  source_security_group_id = aws_security_group.loadBalancer-sg.id
-}
+# resource "aws_security_group_rule" "NFS444" {
+#   security_group_id        = aws_security_group.RDSEFS-sg.id
+#   type                     = "egress"
+#   protocol                 = "tcp"
+#   from_port                = 2049
+#   to_port                  = 2049
+#   source_security_group_id = aws_security_group.loadBalancer-sg.id
+# }
 
 resource "aws_security_group_rule" "NFS445" {
   security_group_id        = aws_security_group.RDSEFS-sg.id
@@ -769,3 +769,39 @@ resource "aws_route53_record" "my_record" {
   ttl     = 1500
   records = [aws_lb.test.dns_name]
 }
+
+
+
+resource "aws_security_group_rule" "allow_all_outbound" {
+  security_group_id = aws_security_group.loadBalancer-sg.id  # Corrected name
+  description = "Allow all outbound traffic"
+  type              = "egress"
+  protocol          = "-1" 
+  from_port         = 0
+  to_port           = 65535  # Allow all ports
+  cidr_blocks        = ["0.0.0.0/0"]  # Allow to any IP
+}
+
+
+
+resource "aws_security_group_rule" "allow_all_outbound" {
+  security_group_id = aws_security_group.clixxapp-sg.id  # Corrected name
+  description = "Allow all outbound traffic"
+  type              = "egress"
+  protocol          = "-1" 
+  from_port         = 0
+  to_port           = 65535  # Allow all ports
+  cidr_blocks        = ["0.0.0.0/0"]  # Allow to any IP
+}
+
+
+resource "aws_security_group_rule" "allow_all_outbound" {
+  security_group_id = aws_security_group.RDSEFS-sg.id  # Corrected name
+  description = "Allow all outbound traffic"
+  type              = "egress"
+  protocol          = "-1" 
+  from_port         = 0
+  to_port           = 65535  # Allow all ports
+  cidr_blocks        = ["0.0.0.0/0"]  # Allow to any IP
+}
+
