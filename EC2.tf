@@ -772,7 +772,7 @@ resource "aws_route53_record" "my_record" {
 
 
 
-resource "aws_security_group_rule" "allow_all_outbound" {
+resource "aws_security_group_rule" "allow_all_outbound1" {
   security_group_id = aws_security_group.loadBalancer-sg.id  # Corrected name
   description = "Allow all outbound traffic"
   type              = "egress"
@@ -784,7 +784,7 @@ resource "aws_security_group_rule" "allow_all_outbound" {
 
 
 
-resource "aws_security_group_rule" "allow_all_outbound" {
+resource "aws_security_group_rule" "allow_all_outbound2" {
   security_group_id = aws_security_group.clixxapp-sg.id  # Corrected name
   description = "Allow all outbound traffic"
   type              = "egress"
@@ -795,7 +795,7 @@ resource "aws_security_group_rule" "allow_all_outbound" {
 }
 
 
-resource "aws_security_group_rule" "allow_all_outbound" {
+resource "aws_security_group_rule" "allow_all_outbound3" {
   security_group_id = aws_security_group.RDSEFS-sg.id  # Corrected name
   description = "Allow all outbound traffic"
   type              = "egress"
