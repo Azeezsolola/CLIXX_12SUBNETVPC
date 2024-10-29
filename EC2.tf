@@ -783,33 +783,37 @@ resource "aws_security_group_rule" "allow_all_outbound3" {
 
 
 #-----------------------------Scaling Policy----------------------------------------------------------
-# resource "aws_autoscaling_policy" "scale_out" {
-#   name                   = "scale-out"
-#   scaling_adjustment      = 1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 300
-#   autoscaling_group_name = aws_autoscaling_group.my_asg.name
-# }
-
-# resource "aws_autoscaling_policy" "scale_in" {
-#   name                   = "scale-in"
-#   scaling_adjustment      = -1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 300
-#   autoscaling_group_name = aws_autoscaling_group.my_asg.name
-# }
-#-------------------------Creating Target Tracking Policy-----------------------------------------------
-resource "aws_autoscaling_target_tracking_policy" "cpu_target_tracking" {
-  name                   = "cpu-target-tracking"
+resource "aws_autoscaling_policy" "scale_out" {
+  name                   = "scale-out"
+  scaling_adjustment      = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
   autoscaling_group_name = aws_autoscaling_group.my_asg.name
+}
+
+resource "aws_autoscaling_policy" "scale_in" {
+  name                   = "scale-in"
+  scaling_adjustment      = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = aws_autoscaling_group.my_asg.name
+}
+#-------------------------Creating Target Tracking Policy-----------------------------------------------
+resource "aws_appautoscaling_policy" "cpu_target_tracking" {
+  name                   = "cpu-target-tracking"
+  policy_type           = "TargetTrackingScaling"
+  
+  resource_id           = "autoScalingGroup:${aws_autoscaling_group.my_asg.name}"
+  scalable_dimension    = "ecs:service:DesiredCount" 
+  service_namespace     = "ecs" 
 
   target_tracking_scaling_policy_configuration {
-    target_value       = 50.0  
+    target_value        = 50.0  
     predefined_metric_specification {
       predefined_metric_type = "ASGAverageCPUUtilization"
     }
-    scale_in_cooldown  = 300    
-    scale_out_cooldown = 300    
+    scale_in_cooldown   = 300    
+    scale_out_cooldown  = 300    
   }
 }
 
