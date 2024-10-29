@@ -64,7 +64,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
   
   
   alarm_actions = [
-    aws_sns_topic.my_sns_topic2.arn
+    aws_sns_topic.alert_topic2.arn
   ]
 }
 
@@ -103,6 +103,6 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization_alarm" {
   
 
   alarm_actions = [
-    aws_sns_topic.my_sns_topic3.arn
+    aws_sns_topic.alert_topic3.arn
   ]
 }
