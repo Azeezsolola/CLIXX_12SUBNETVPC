@@ -810,7 +810,7 @@ resource "aws_appautoscaling_policy" "cpu_target_tracking" {
   target_tracking_scaling_policy_configuration {
     target_value        = 50.0  
     predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+      predefined_metric_type = "ASGAverageCPUUtilization"
     }
     scale_in_cooldown   = 300    
     scale_out_cooldown  = 300    
