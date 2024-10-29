@@ -4,6 +4,7 @@ data "aws_ssm_parameter" "gettingdbidentifier" {
 }
 
 output "dbidentifier" {
+  sensitive = true
   value = data.aws_ssm_parameter.gettingdbidentifier.value
 }
 
@@ -47,6 +48,7 @@ data "aws_ssm_parameter" "gettingefsarn" {
 
 
 output "efs_arn" {
+  sensitive = true
   value = data.aws_ssm_parameter.gettingefsarn.value
 }
 
@@ -58,6 +60,7 @@ data "aws_ssm_parameter" "gettingloadbalancerarn" {
 
 
 output "loadbalancer_arn" {
+  sensitive = true
   value = data.aws_ssm_parameter.gettingloadbalancerarn.value
 }
 
@@ -69,5 +72,6 @@ data "aws_ssm_parameter" "gettinginstancename" {
 
 
 output "instance_name" {
+  sensitive = true
   value = data.aws_ssm_parameter.gettinginstancename.value
 }
