@@ -508,7 +508,7 @@ resource "aws_ssm_parameter" "loadbalancerssm" {
   name        = "/myapp/config/loadbalancerarn"  
   description = "Load Balancer Arn"
   type        = "String"    
-  value       = aws_lb.test.arn  
+  value       = aws_lb.test.dns_name 
 
   tags = {
     Environment = "Dev" 
@@ -608,7 +608,19 @@ resource "aws_db_instance" "restored_db" {
   }
 }
 
+
 #--------------------CAlling ssm to store RDS database ----------------------------------------------------------
+
+resource "aws_ssm_parameter" "dbidentifier" {
+  name        = "/myapp/config/dbidentifier"  
+  description = "DB Identifier"
+  type        = "String"    
+  value       = aws_db_instance.restored_db.identifier  
+
+  tags = {
+    Environment = "Dev" 
+  }
+}
 
 
 #--------------------Declaring variables to be used in the Bootstrap ----------------------------------------------
@@ -701,6 +713,18 @@ data "aws_route53_zone" "selected" {
 output "hostedzone" {
   value = data.aws_route53_zone.selected.zone_id
 
+}
+
+#----------------------CAlling ssm parameter to store names of the instances created by the autoscaling group----------------
+resource "aws_ssm_parameter" "instancename" {
+  name        = "/myapp/config/instancename"  
+  description = "DB Identifier"
+  type        = "String"    
+  value       = "MyCliXXAutoScaling"  
+
+  tags = {
+    Environment = "Dev" 
+  }
 }
 
 #---------------------Creating record in hosted zone--------------------------------------------
