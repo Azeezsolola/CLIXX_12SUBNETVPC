@@ -798,23 +798,47 @@ resource "aws_autoscaling_policy" "scale_in" {
   cooldown               = 300
   autoscaling_group_name = aws_autoscaling_group.my_asg.name
 }
+
 #-------------------------Creating Target Tracking Policy-----------------------------------------------
-resource "aws_appautoscaling_policy" "cpu_target_tracking" {
+# resource "aws_appautoscaling_policy" "cpu_target_tracking" {
+#   name                   = "cpu-target-tracking"
+#   policy_type           = "TargetTrackingScaling"
+  
+#   resource_id           = "autoScalingGroup:${aws_autoscaling_group.my_asg.name}"
+#   scalable_dimension    = "ecs:service:DesiredCount" 
+#   service_namespace     = "ecs" 
+
+#   target_tracking_scaling_policy_configuration {
+#     target_value        = 50.0  
+#     predefined_metric_specification {
+#       predefined_metric_type = "ASGAverageCPUUtilization"
+#     }
+#     scale_in_cooldown   = 300    
+#     scale_out_cooldown  = 300    
+#   }
+# }
+
+
+
+
+resource "aws_autoscaling_policy" "cpu_target_tracking" {
   name                   = "cpu-target-tracking"
   policy_type           = "TargetTrackingScaling"
   
-  resource_id           = "autoScalingGroup:${aws_autoscaling_group.my_asg.name}"
-  scalable_dimension    = "ecs:service:DesiredCount" 
-  service_namespace     = "ecs" 
+  autoscaling_group_name = aws_autoscaling_group.my_asg.name
+  
+  target_tracking_configuration {
+    target_value = 50.0  # Target CPU utilization percentage
 
-  target_tracking_scaling_policy_configuration {
-    target_value        = 50.0  
     predefined_metric_specification {
-      predefined_metric_type = "ASGAverageCPUUtilization"
+      predefined_metric_type = "ASGAverageCPUUtilization"  # Correct metric for EC2 Auto Scaling Groups
     }
-    scale_in_cooldown   = 300    
-    scale_out_cooldown  = 300    
+    
+       
   }
 }
+
+
+
 
 
