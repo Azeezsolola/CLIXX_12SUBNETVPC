@@ -553,7 +553,7 @@ resource "aws_efs_file_system" "my_efs" {
     Environment = "Development"
   }
 }
-
+aws_efs_file_system.my_efs
 #---------------------------Calling ssm to store efs arn --------------------------------------------------
 resource "aws_ssm_parameter" "efarnssm" {
   name        = "/myapp/config/efsarn"  
@@ -717,6 +717,7 @@ output "hostedzone" {
 
 #----------------------CAlling ssm parameter to store names of the instances created by the autoscaling group----------------
 resource "aws_ssm_parameter" "instancename" {
+  
   name        = "/myapp/config/instancename"  
   description = "DB Identifier"
   type        = "String"    
