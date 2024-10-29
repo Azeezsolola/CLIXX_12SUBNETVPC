@@ -698,6 +698,7 @@ resource "aws_autoscaling_group" "my_asg" {
   }
 
   target_group_arns = [aws_lb_target_group.instance_target_group.arn]
+  
 }
 
 
@@ -716,6 +717,8 @@ output "hostedzone" {
   value = data.aws_route53_zone.selected.zone_id
 
 }
+
+
 
 #----------------------CAlling ssm parameter to store names of the instances created by the autoscaling group----------------
 resource "aws_ssm_parameter" "instancename" {
@@ -780,18 +783,34 @@ resource "aws_security_group_rule" "allow_all_outbound3" {
 
 
 #-----------------------------Scaling Policy----------------------------------------------------------
-resource "aws_autoscaling_policy" "scale_out" {
-  name                   = "scale-out"
-  scaling_adjustment      = 1
-  adjustment_type        = "ChangeInCapacity"
-  cooldown               = 300
+# resource "aws_autoscaling_policy" "scale_out" {
+#   name                   = "scale-out"
+#   scaling_adjustment      = 1
+#   adjustment_type        = "ChangeInCapacity"
+#   cooldown               = 300
+#   autoscaling_group_name = aws_autoscaling_group.my_asg.name
+# }
+
+# resource "aws_autoscaling_policy" "scale_in" {
+#   name                   = "scale-in"
+#   scaling_adjustment      = -1
+#   adjustment_type        = "ChangeInCapacity"
+#   cooldown               = 300
+#   autoscaling_group_name = aws_autoscaling_group.my_asg.name
+# }
+#-------------------------Creating Target Tracking Policy-----------------------------------------------
+resource "aws_autoscaling_target_tracking_policy" "cpu_target_tracking" {
+  name                   = "cpu-target-tracking"
   autoscaling_group_name = aws_autoscaling_group.my_asg.name
+
+  target_tracking_scaling_policy_configuration {
+    target_value       = 50.0  
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    scale_in_cooldown  = 300    
+    scale_out_cooldown = 300    
+  }
 }
 
-resource "aws_autoscaling_policy" "scale_in" {
-  name                   = "scale-in"
-  scaling_adjustment      = -1
-  adjustment_type        = "ChangeInCapacity"
-  cooldown               = 300
-  autoscaling_group_name = aws_autoscaling_group.my_asg.name
-}
+
