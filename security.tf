@@ -1,21 +1,10 @@
-# #------------------Getting the values of my stored paramater for db identifier---------------------------------
-# data "aws_ssm_parameter" "gettingdbidentifier" {
-#   name = "/myapp/config/dbidentifier"
-#   depends_on = [aws_db_instance.restored_db]
-# }
-
-# output "dbidentifier" {
-#   sensitive = true
-#   value = data.aws_ssm_parameter.gettingdbidentifier.value
-# }
-
 #----------------------Creating SNS TOPIC for RDS--------------------------------------------------------------
 resource "aws_sns_topic" "alert_topic" {
   name = "RDS_CPU_UTILIZATION_BY_AZEEZ"
 }
 
 #----------------------Creating those that would receive the notification(email)-------------------------------
-resource "aws_sns_topic_subscription" "email_subscription" {
+resource "aws_sns_topic_subscription" "email_subscription1" {
   topic_arn = aws_sns_topic.alert_topic.arn
   protocol  = "email"
   endpoint  = "stackcloud12@mkitconsulting.net" 
@@ -41,41 +30,79 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
 }
 
 
-#-------------------Getting the value for EFS ARN---------------------------------------------------------------
-
-# data "aws_ssm_parameter" "gettingefsarn" {
-#   name = "/myapp/config/efsarn"
-#   depends_on = [aws_efs_file_system.my_efs]
-# }
+#----------------------Creating SNS Topic for load Balancer ------------------------------------------------------
+resource "aws_sns_topic" "alert_topic2" {
+  name = "LoadBalancer_Error_Message_BY_AZEEZ"
+}
 
 
-# output "efs_arn" {
-#   sensitive = true
-#   value = data.aws_ssm_parameter.gettingefsarn.value
-# }
+#--------------------------Creating subscription for who to recieve the notificartion-------------------
+resource "aws_sns_topic_subscription" "email_subscription2" {
+  topic_arn = aws_sns_topic.alert_topic2.arn
+  protocol  = "email"
+  endpoint  = "oloyedeifeoluwa21@gmail.com" 
+} 
 
 
-#-------------------Getting loadbalnacer ARN----------------------------------------------------------
-# data "aws_ssm_parameter" "gettingloadbalancerarn" {
-#   name = "/myapp/config/loadbalancerarn"
-#   depends_on = [aws_lb.test]
-# }
+#-------------------Craeting Alarm for LoadBalacncer when theres an internal server error for any of the instances ---------------------------------------------------
+
+resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
+  alarm_name          = "internal_Server_Error_500"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name        = "HTTPCode_ELB_5XX_Count"
+  namespace          = "AWS/ApplicationELB"
+  period             = 300  
+  statistic          = "Sum"
+  threshold          = 20   
+
+  dimensions = {
+    LoadBalancer = aws_lb.test.dns_name  
+  }
+
+  alarm_description = "This alarm indicates there's a server internal error"
+  
+  
+  alarm_actions = [
+    aws_sns_topic.my_sns_topic2.arn
+  ]
+}
 
 
-# output "loadbalancer_arn" {
-#   sensitive = true
-#   value = data.aws_ssm_parameter.gettingloadbalancerarn.value
-# }
+
+#------------------------Creating SNS topic for High cpu usage for instances in the autoscaling group-----------------------------
+resource "aws_sns_topic" "alert_topic3" {
+  name = "EC2_HIgh_CPUUsage_BY_AZEEZ"
+}
 
 
-#---------------------Getting Instance name fiorm ssm parameter store ---------------------------------
-# data "aws_ssm_parameter" "gettinginstancename" {
-#   name = "/myapp/config/instancename"
-#   depends_on = [aws_autoscaling_group.my_asg]
-# }
+#--------------------------Creating subscription for who to recieve the notificartion-------------------------------------------
+resource "aws_sns_topic_subscription" "email_subscription3" {
+  topic_arn = aws_sns_topic.alert_topic3.arn
+  protocol  = "email"
+  endpoint  = "oloyedeifeoluwa21@gmail.com" 
+} 
 
 
-# output "instance_name" {
-#   sensitive = true
-#   value = data.aws_ssm_parameter.gettinginstancename.value
-# }
+#----------------------Alarm for High Instance CPU Usage--------------------------------------------------------------------------
+resource "aws_cloudwatch_metric_alarm" "cpu_utilization_alarm" {
+  alarm_name          = "HighCPUUtilization"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name        = "CPUUtilization"
+  namespace          = "AWS/EC2"
+  period             = 300  
+  statistic          = "Average"
+  threshold          = 80.0   
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.my_asg.name
+  }
+
+  alarm_description = "Alarm when CPU exceeds 80% for instances in the Auto Scaling Group"
+  
+
+  alarm_actions = [
+    aws_sns_topic.my_sns_topic3.arn
+  ]
+}

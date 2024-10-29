@@ -503,6 +503,8 @@ resource "aws_lb" "test" {
   }
 }
 
+
+
 #------------------Calling SSM to store load balancer ARN in ssm parameter store --------------------------
 resource "aws_ssm_parameter" "loadbalancerssm" {
   name        = "/myapp/config/loadbalancerarn"  
