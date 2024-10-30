@@ -624,11 +624,32 @@ resource "aws_ssm_parameter" "dbidentifier" {
   }
 }
 
+#-----------------Getting the DB login details from ssm parammeter----------------------------------------------------
+data "aws_ssm_parameter" "name" {
+  name = "/myapp/dbname"
+}
+
+data "aws_ssm_parameter" "username" {
+  name = "/myapp/dbusername"
+}
+
+
+data "aws_ssm_parameter" "endpoint" {
+  name = "/myapp/dbendpoint"
+}
+
+data "aws_ssm_parameter" "password" {
+  name = "/myapp/dbpassword"
+}
 
 #--------------------Declaring variables to be used in the Bootstrap ----------------------------------------------
 data "template_file" "bootstrap" {
     template = file(format("%s/scripts/bootstrap.tpl", path.module))
     vars = {
+    dbname=data.aws_ssm_parameter.name.value,
+    dbusername=data.aws_ssm_parameter.username.value,
+    dbendpoint=data.aws_ssm_parameter.endpoint.value,
+    dbpassword=data.aws_ssm_parameter.password.value,
     lb_dns = "https://terraform.clixx-azeez.com" ,
     FILE = aws_efs_file_system.my_efs.id,
     MOUNT_POINT="/var/www/html",
@@ -720,6 +741,7 @@ output "hostedzone" {
 
 
 
+
 #----------------------CAlling ssm parameter to store names of the instances created by the autoscaling group----------------
 resource "aws_ssm_parameter" "instancename" {
   
@@ -800,27 +822,6 @@ resource "aws_autoscaling_policy" "scale_in" {
 }
 
 #-------------------------Creating Target Tracking Policy-----------------------------------------------
-# resource "aws_appautoscaling_policy" "cpu_target_tracking" {
-#   name                   = "cpu-target-tracking"
-#   policy_type           = "TargetTrackingScaling"
-  
-#   resource_id           = "autoScalingGroup:${aws_autoscaling_group.my_asg.name}"
-#   scalable_dimension    = "ecs:service:DesiredCount" 
-#   service_namespace     = "ecs" 
-
-#   target_tracking_scaling_policy_configuration {
-#     target_value        = 50.0  
-#     predefined_metric_specification {
-#       predefined_metric_type = "ASGAverageCPUUtilization"
-#     }
-#     scale_in_cooldown   = 300    
-#     scale_out_cooldown  = 300    
-#   }
-# }
-
-
-
-
 resource "aws_autoscaling_policy" "cpu_target_tracking" {
   name                   = "cpu-target-tracking"
   policy_type           = "TargetTrackingScaling"
@@ -828,10 +829,10 @@ resource "aws_autoscaling_policy" "cpu_target_tracking" {
   autoscaling_group_name = aws_autoscaling_group.my_asg.name
   
   target_tracking_configuration {
-    target_value = 50.0  # Target CPU utilization percentage
+    target_value = 50.0  
 
     predefined_metric_specification {
-      predefined_metric_type = "ASGAverageCPUUtilization"  # Correct metric for EC2 Auto Scaling Groups
+      predefined_metric_type = "ASGAverageCPUUtilization"  
     }
     
        
