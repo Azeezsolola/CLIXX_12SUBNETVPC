@@ -47,10 +47,10 @@ cp -r wp-config-sample.php wp-config.php
 
 ## Allow wordpress to use Permalinks
 sudo sed -i '151s/None/All/' /etc/httpd/conf/httpd.conf
-sudo sed -i 's/database_name_here/wordpressdb/' /var/www/html/wp-config.php
-sudo sed -i 's/username_here/wordpressuser/' /var/www/html/wp-config.php
-sudo sed -i 's/localhost/wordpressdbclixx-ecs.cn2yqqwoac4e.us-east-1.rds.amazonaws.com/' /var/www/html/wp-config.php
-sudo sed -i 's/password_here/W3lcome123/' /var/www/html/wp-config.php
+sudo sed -i 's/database_name_here/${dbname}/' /var/www/html/wp-config.php
+sudo sed -i 's/username_here/${dbusername}/' /var/www/html/wp-config.php
+sudo sed -i 's/localhost/${dbendpoint}/' /var/www/html/wp-config.php
+sudo sed -i 's/password_here/${dbpassword}/' /var/www/html/wp-config.php
 sudo sed -i "s/define( 'WP_DEBUG', false );/define( 'WP_DEBUG', false ); \nif (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) \&\& \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {\$_SERVER['HTTPS'] = 'on';}/" /var/www/html/wp-config.php
 
 
