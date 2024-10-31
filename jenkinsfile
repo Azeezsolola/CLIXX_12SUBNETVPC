@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         PATH = "${PATH}:${getTerraformPath()}"
-        ACTION="apply"
+        ACTION="destroy"
+       
        
     }
     stages{
