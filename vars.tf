@@ -24,6 +24,15 @@ variable "PATH_TO_PUBLIC_KEY" {
 #   }
 # }
 
+variable "ACCOUNTS" {
+  type = map(string)
+  default = {
+    dev = 495599767034
+    production = 242201295617
+    uat = 222634402516
+  }
+}
+
 #  variable "RDS_PASSWORD" {
 #  }
 
@@ -79,4 +88,8 @@ variable "public_cidr" {
   type = list(string)
   description = "public cidr"
   default = ["10.0.2.0/24","10.0.3.0/24"]
+}
+
+variable "environment" {
+  default = "dev"
 }
