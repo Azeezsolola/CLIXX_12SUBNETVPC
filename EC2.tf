@@ -1,3 +1,9 @@
+locals {
+  env = var.environment
+  account_to_deploy = var.ACCOUNTS[local.env]
+  account_arn = "arn:aws:iam::${local.account_to_deploy}:role/Engineer"
+}
+
 #-------------------------------Creating VPC------------------------------------------------------------
 resource "aws_vpc" "myvpc" {
   cidr_block = "10.0.0.0/16"
