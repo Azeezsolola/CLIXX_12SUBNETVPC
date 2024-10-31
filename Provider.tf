@@ -5,6 +5,6 @@ provider "aws" {
 
 assume_role {
   #The role ARN within Account B to AssumeRole into. Created in step 1.
-  role_arn = "arn:aws:iam::ACCOUNTS["var.environment"]:role/Engineer"
+  role_arn = "arn:aws:iam::var.ACCOUNTS[var.environment]:role/Engineer"
   }
 }
