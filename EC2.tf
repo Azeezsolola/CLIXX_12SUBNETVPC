@@ -846,6 +846,3 @@ resource "aws_autoscaling_policy" "cpu_target_tracking" {
 }
 
 
-
-
-
