@@ -5,7 +5,6 @@ pipeline {
         PATH = "${PATH}:${getTerraformPath()}"
         ACTION="create"
        
-       
     }
     stages{
 
