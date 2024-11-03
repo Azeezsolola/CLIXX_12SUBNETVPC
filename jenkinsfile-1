@@ -36,7 +36,7 @@ pipeline {
              script{
               dockerHome= tool 'docker-inst'
             }
-             sh "${dockerHome}/bin/docker build . -t clixx-image:$VERSION "
+             //sh "${dockerHome}/bin/docker build . -t clixx-image:$VERSION "
             sh "docker build . -t clixx-image:$VERSION "
           }
         }
