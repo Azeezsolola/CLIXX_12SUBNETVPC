@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         PATH = "${PATH}:${getTerraformPath()}"
-        ACTION="apply"
+        ACTION="destroy"
        
        
     }
@@ -36,7 +36,7 @@ pipeline {
          stage('Terraform apply'){
               steps {
                 sh '''
-                if [[ $ACTION == 'destroy' ]]
+                if [[ $ACTION == 'apply' ]]
                 then
                     terraform $ACTION -auto-approve
                 else
