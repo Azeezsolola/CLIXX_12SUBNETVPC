@@ -36,7 +36,7 @@ pipeline {
          stage('Terraform apply'){
               steps {
                 sh '''
-                if [[ $ACTION == 'apply' ]]
+                if [[ $ACTION == 'destroy' ]]
                 then
                     terraform $ACTION -auto-approve
                 else
